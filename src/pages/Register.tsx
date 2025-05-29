@@ -1,14 +1,13 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import { Clock, CheckCircle } from 'lucide-react';
+import { Clock, CheckCircle, X, Check } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -20,8 +19,17 @@ const Register = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [passwordFocus, setPasswordFocus] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  const passwordRequirements = {
+    length: formData.password.length >= 8,
+    uppercase: /[A-Z]/.test(formData.password),
+    number: /[0-9]/.test(formData.password)
+  };
+
+  const isPasswordValid = Object.values(passwordRequirements).every(Boolean);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -33,6 +41,11 @@ const Register = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!isPasswordValid) {
+      toast.error('Please meet all password requirements');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -138,7 +151,12 @@ const Register = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="space-y-2"
+              >
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
@@ -149,8 +167,14 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 />
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 }}
+                className="space-y-2"
+              >
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -161,8 +185,14 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 />
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-2"
+              >
                 <Label htmlFor="studentId">Student ID</Label>
                 <Input
                   id="studentId"
@@ -173,8 +203,14 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 />
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="space-y-2"
+              >
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
@@ -183,10 +219,53 @@ const Register = () => {
                   placeholder="Create a strong password"
                   value={formData.password}
                   onChange={handleChange}
+                  onFocus={() => setPasswordFocus(true)}
+                  onBlur={() => setPasswordFocus(false)}
                   required
                 />
-              </div>
-              <div className="space-y-2">
+                <AnimatePresence>
+                  {passwordFocus && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="text-sm space-y-1 bg-gray-50 p-3 rounded-md"
+                    >
+                      <div className="flex items-center gap-2">
+                        {passwordRequirements.length ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <X className="w-4 h-4 text-red-500" />
+                        )}
+                        <span>At least 8 characters</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {passwordRequirements.uppercase ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <X className="w-4 h-4 text-red-500" />
+                        )}
+                        <span>One uppercase letter</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {passwordRequirements.number ? (
+                          <Check className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <X className="w-4 h-4 text-red-500" />
+                        )}
+                        <span>One number</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 }}
+                className="space-y-2"
+              >
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
@@ -197,20 +276,36 @@ const Register = () => {
                   onChange={handleChange}
                   required
                 />
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating account...' : 'Create Account'}
-              </Button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+              >
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading || !isPasswordValid}
+                >
+                  {isLoading ? 'Creating account...' : 'Create Account'}
+                </Button>
+              </motion.div>
             </form>
             
-            <div className="mt-6 text-center text-sm">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="mt-6 text-center text-sm"
+            >
               <p className="text-gray-600">
                 Already have an account?{' '}
                 <Link to="/login" className="text-blue-600 hover:underline">
                   Sign in here
                 </Link>
               </p>
-            </div>
+            </motion.div>
           </CardContent>
         </Card>
       </motion.div>

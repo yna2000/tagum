@@ -1,14 +1,13 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
-import { Clock } from 'lucide-react';
+import { Clock, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -38,6 +37,14 @@ const Login = () => {
       const savedUser = localStorage.getItem('sti_user');
       if (savedUser) {
         const user = JSON.parse(savedUser);
+        
+        // Add animation before navigation
+        const element = document.querySelector('.login-card');
+        if (element) {
+          element.classList.add('scale-out');
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        
         if (user.role === 'admin') {
           navigate('/admin-dashboard');
         } else {
@@ -71,17 +78,29 @@ const Login = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
+        className="login-card w-full max-w-md"
       >
-        <Card className="w-full max-w-md">
+        <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Welcome Back</CardTitle>
-            <CardDescription>
-              Sign in to your STI Events account
-            </CardDescription>
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <CardTitle className="text-2xl">Welcome Back</CardTitle>
+              <CardDescription>
+                Sign in to your STI Events account
+              </CardDescription>
+            </motion.div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="space-y-2"
+              >
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -91,9 +110,16 @@ const Login = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  className="transition-all duration-200 focus:scale-[1.02]"
                 />
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="space-y-2"
+              >
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
@@ -103,14 +129,38 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  className="transition-all duration-200 focus:scale-[1.02]"
                 />
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign In'}
-              </Button>
+              </motion.div>
+
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Button 
+                  type="submit" 
+                  className="w-full group" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    'Signing in...'
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      Sign In
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  )}
+                </Button>
+              </motion.div>
             </form>
             
-            <div className="mt-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="mt-6"
+            >
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
                 <p className="text-sm text-blue-800">
                   <strong>Demo Accounts:</strong>
@@ -124,8 +174,9 @@ const Login = () => {
               <div className="text-center text-sm">
                 <p className="text-gray-600">
                   Don't have an account?{' '}
-                  <Link to="/register" className="text-blue-600 hover:underline">
+                  <Link to="/register" className="text-blue-600 hover:underline group">
                     Register here
+                    <ArrowRight className="w-4 h-4 inline ml-1 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </p>
                 <p className="text-xs text-gray-500 mt-2 flex items-center justify-center gap-1">
@@ -133,7 +184,7 @@ const Login = () => {
                   New registrations require admin approval
                 </p>
               </div>
-            </div>
+            </motion.div>
           </CardContent>
         </Card>
       </motion.div>

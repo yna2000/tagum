@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -25,6 +24,7 @@ export const AdModal: React.FC<AdModalProps> = ({ ad, onClose, onInteraction }) 
   const [countdown, setCountdown] = useState(5);
   const [progress, setProgress] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const [currentAdIndex, setCurrentAdIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -83,21 +83,25 @@ export const AdModal: React.FC<AdModalProps> = ({ ad, onClose, onInteraction }) 
   };
 
   const imageVariants = {
-    hover: { 
-      scale: 1.05,
-      transition: { duration: 0.3 }
-    }
+    enter: (direction: number) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0
+    })
   };
 
-  const buttonVariants = {
-    hover: { 
-      scale: 1.02,
-      transition: { duration: 0.2 }
-    },
-    tap: { 
-      scale: 0.98,
-      transition: { duration: 0.1 }
-    }
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
   };
 
   return (
@@ -121,7 +125,7 @@ export const AdModal: React.FC<AdModalProps> = ({ ad, onClose, onInteraction }) 
                   <Gift className="w-6 h-6 text-blue-500" />
                 </motion.div>
                 <DialogTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Special Offer
+                  {ad.title}
                 </DialogTitle>
                 <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 border-yellow-200">
                   <Star className="w-3 h-3 mr-1" />
@@ -140,13 +144,27 @@ export const AdModal: React.FC<AdModalProps> = ({ ad, onClose, onInteraction }) 
           </DialogHeader>
           
           <div className="px-6 pb-6 space-y-6">
-            {/* Enhanced image section */}
+            {/* Enhanced image section with slide animation */}
             <motion.div
               className="relative overflow-hidden rounded-xl shadow-lg"
               onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
               whileHover="hover"
               variants={imageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={1}
+              onDragEnd={(e, { offset, velocity }) => {
+                const swipe = swipePower(offset.x, velocity.x);
+                if (swipe < -swipeConfidenceThreshold) {
+                  setCurrentAdIndex((prev) => (prev + 1) % 4);
+                } else if (swipe > swipeConfidenceThreshold) {
+                  setCurrentAdIndex((prev) => (prev - 1 + 4) % 4);
+                }
+              }}
             >
               <img 
                 src={ad.image} 
@@ -206,16 +224,15 @@ export const AdModal: React.FC<AdModalProps> = ({ ad, onClose, onInteraction }) 
                 className="space-y-3"
               >
                 <motion.div
-                  variants={buttonVariants}
-                  whileHover="hover"
-                  whileTap="tap"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   <Button 
                     onClick={handleAdClick}
                     className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 rounded-xl shadow-lg"
                   >
                     <Zap className="w-4 h-4 mr-2" />
-                    Get This Deal Now!
+                    Learn More
                   </Button>
                 </motion.div>
                 

@@ -1,4 +1,3 @@
-
 // Mock API service - replace with real API calls
 const API_BASE_URL = '/api';
 
@@ -13,7 +12,7 @@ let mockEvents = [
     location: 'STI Main Auditorium',
     capacity: 200,
     joined: 45,
-    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=500',
+    image: 'https://images.pexels.com/photos/2041627/pexels-photo-2041627.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     createdBy: 'admin@sti.edu'
   },
   {
@@ -25,7 +24,7 @@ let mockEvents = [
     location: 'STI Gymnasium',
     capacity: 500,
     joined: 123,
-    image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=500',
+    image: 'https://images.pexels.com/photos/1181396/pexels-photo-1181396.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
     createdBy: 'admin@sti.edu'
   }
 ];
@@ -33,10 +32,43 @@ let mockEvents = [
 let mockAds = [
   {
     id: '1',
-    title: 'STI Bookstore Sale',
-    description: '50% off on programming books and tech accessories!',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-    clickUrl: 'https://sti-bookstore.com/sale',
+    title: 'STI Computer Laboratory',
+    description: 'Experience hands-on learning in our state-of-the-art computer laboratories!',
+    image: 'https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    clickUrl: 'https://sti.edu/facilities',
+    approved: true,
+    targetRole: 'student',
+    clicks: 0,
+    views: 0
+  },
+  {
+    id: '2',
+    title: 'STI Library Resources',
+    description: 'Access thousands of digital resources and books in our modern library.',
+    image: 'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    clickUrl: 'https://sti.edu/library',
+    approved: true,
+    targetRole: 'student',
+    clicks: 0,
+    views: 0
+  },
+  {
+    id: '3',
+    title: 'STI Science Laboratory',
+    description: 'Discover and experiment in our well-equipped science laboratories.',
+    image: 'https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    clickUrl: 'https://sti.edu/facilities/science-lab',
+    approved: true,
+    targetRole: 'student',
+    clicks: 0,
+    views: 0
+  },
+  {
+    id: '4',
+    title: 'STI Student Activities',
+    description: 'Join various student organizations and extracurricular activities!',
+    image: 'https://images.pexels.com/photos/1205651/pexels-photo-1205651.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+    clickUrl: 'https://sti.edu/student-life',
     approved: true,
     targetRole: 'student',
     clicks: 0,
@@ -91,8 +123,10 @@ export const joinEvent = async (eventId, userId) => {
 // Ads API
 export const getApprovedAd = async () => {
   return new Promise((resolve) => {
-    const ad = mockAds.find(a => a.approved && a.targetRole === 'student');
-    setTimeout(() => resolve(ad || null), 300);
+    // Randomly select an ad from the approved ads
+    const approvedAds = mockAds.filter(a => a.approved && a.targetRole === 'student');
+    const randomAd = approvedAds[Math.floor(Math.random() * approvedAds.length)];
+    setTimeout(() => resolve(randomAd || null), 300);
   });
 };
 
